@@ -17,6 +17,12 @@
         </thead>
         <tbody>
         {% for task in tasks %}
+            {% for tag in task.tags %}
+                <span class="badge bg-secondary">{{ tag.name }}</span>
+            {% else %}
+                <small>Sin etiquetas</small>
+            {% endfor %}
+
             <tr>
                 <td>{{ task.id }}</td>
                 <td>{{ task.title }}</td>

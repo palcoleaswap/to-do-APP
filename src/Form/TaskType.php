@@ -8,6 +8,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use App\Entity\Tag;
 
 class TaskType extends AbstractType
 {
@@ -26,8 +27,13 @@ class TaskType extends AbstractType
         'choice_label' => 'title',
         'required' => false,
         'placeholder' => 'Ninguna (tarea principal)',
+    ])
+          ->add('tags', EntityType::class, [
+        'class' => Tag::class,
+        'choice_label' => 'name',
+        'multiple' => true,
+        'expanded' => true, // puedes poner false si quieres un select en lugar de checkboxes
     ]);
-        ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void

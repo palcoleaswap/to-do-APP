@@ -1,0 +1,39 @@
+{# templates/user/dashboard.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Panel de Usuario{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4">Panel de Usuario</h1>
+        <p>Bienvenido, {{ app.user.userIdentifier }}</p>
+
+        <hr>
+
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Mis Tareas</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Aquí puedes ver todas las tareas que se te han asignado.</p>
+                        <a href="{{ path('app_task_index') }}" class="btn btn-primary">Ver Mis Tareas</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Cerrar Sesión</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Haz clic a continuación para cerrar tu sesión.</p>
+                        <a href="{{ path('app_logout') }}" class="btn btn-secondary">Desconectar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

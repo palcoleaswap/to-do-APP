@@ -1,0 +1,46 @@
+{# templates/admin/dashboard.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Panel de Administrador{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-12">
+        <h1>Panel de Administrador</h1>
+        <p class="lead">Bienvenido, {{ app.user.userIdentifier  }}</p>
+    </div>
+</div>
+
+
+
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5 class="card-title">Dashboard Admin</h5>
+                <p class="card-text">Ver como admin</p>
+                <ul>
+                <li> <a href="{{ path('app_task_new') }}" class="btn btn-light">Crear Tarea</a> </li>
+                <li> <a href="{{ path('app_task_index') }}" class="btn btn-light">Ver Todas las Tareas</a> </li>
+                <li> <a href="{{ path('app_group_user_index') }}" class="btn btn-light">Asignar Grupo</a> </li>
+
+                <ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+  <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5 class="card-title">Desconectar</h5>
+                <ul>
+                <li> <a href="{{ path('app_logout') }}" class="btn btn-light">Desconectar</a> </li>
+                
+                <ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
