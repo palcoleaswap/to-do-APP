@@ -1,4 +1,23 @@
 {{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+    {{ form_row(form.title) }}
+    {{ form_row(form.description) }}
+    {{ form_row(form.status) }}
+    {{ form_row(form.user) }}
+    {{ form_row(form.parent) }}
+    {{ form_row(form.tagNames) }}
+
+    <h3>Subtareas</h3>
+    
+    <div id="subtasks-wrapper" data-prototype="{{ form_widget(form.subtasks.vars.prototype)|e('html_attr') }}">
+        {% for subtaskForm in form.subtasks %}
+            <div class="subtask-form">
+                {{ form_widget(subtaskForm) }}
+            </div>
+        {% endfor %}
+    </div>
+
+    <button type="button" id="add-subtask">+ Añadir subtarea</button>
+
+    <br><br>
+    <button class="btn">{{ button_label|default('Guardar') }}</button>
 {{ form_end(form) }}

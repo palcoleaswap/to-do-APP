@@ -7,6 +7,8 @@ use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -29,7 +31,15 @@ class TaskType extends AbstractType
         'choice_label' => 'title',
         'required' => false,
         'placeholder' => 'Ninguna (tarea principal)',
-    ])
+    ])  
+    ->add('subtasks', CollectionType::class, [
+                'entry_type' => SubtaskType::class, // Aquí puede explotar si no tenés un `SubtaskType`
+                'entry_options' => ['label' => false],
+                'allow_add' => true,
+                'prototype' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+            ])
           ->add('tagNames', TextType::class, [
                 'label' => 'Tags',
                 'mapped' => false, // No se mapea directamente a la entidad
