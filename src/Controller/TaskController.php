@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Task;
+use App\Entity\Tag;
 use App\Form\TaskType;
 use App\Repository\TaskRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -10,13 +11,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/task')]
 final class TaskController extends AbstractController
 {
-
-
-
     #[Route(name: 'app_task_index', methods: ['GET'])]
     public function index(TaskRepository $taskRepository): Response
     {
@@ -34,6 +33,13 @@ final class TaskController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Procesar tags del campo de texto
+            $tagNames = $form->get('tagNames')->getData();
+            
+            if ($tagNames) {
+                $this->processTags($tagNames, $task, $entityManager);
+            }
+
             $entityManager->persist($task);
             $entityManager->flush();
 
@@ -58,10 +64,32 @@ final class TaskController extends AbstractController
     #[IsGranted('ROLE_ADMIN')]
     public function edit(Request $request, Task $task, EntityManagerInterface $entityManager): Response
     {
+        // Pre-rellenar el campo tagNames con los tags existentes
+        $existingTagNames = [];
+        foreach ($task->getTags() as $tag) {
+            $existingTagNames[] = $tag->getName();
+        }
+        
         $form = $this->createForm(TaskType::class, $task);
+        
+        // Pre-rellenar el campo tagNames si hay tags existentes
+        if (!empty($existingTagNames)) {
+            $form->get('tagNames')->setData(implode(', ', $existingTagNames));
+        }
+        
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Limpiar tags existentes
+            $task->getTags()->clear();
+            
+            // Procesar nuevos tags del campo de texto
+            $tagNames = $form->get('tagNames')->getData();
+            
+            if ($tagNames) {
+                $this->processTags($tagNames, $task, $entityManager);
+            }
+
             $entityManager->flush();
 
             return $this->redirectToRoute('app_task_index', [], Response::HTTP_SEE_OTHER);
@@ -83,5 +111,33 @@ final class TaskController extends AbstractController
         }
 
         return $this->redirectToRoute('app_task_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    /**
+     * Método helper para procesar tags desde el campo de texto
+     */
+    private function processTags(string $tagNames, Task $task, EntityManagerInterface $entityManager): void
+    {
+        $tagNamesArray = array_map('trim', explode(',', $tagNames));
+        
+        foreach ($tagNamesArray as $tagName) {
+            if (!empty($tagName)) {
+                // Buscar si el tag ya existe
+                $tag = $entityManager->getRepository(Tag::class)
+                    ->findOneBy(['name' => $tagName]);
+                
+                // Si no existe, crearlo
+                if (!$tag) {
+                    $tag = new Tag();
+                    $tag->setName($tagName);
+                    $entityManager->persist($tag);
+                }
+                
+                // Añadir el tag a la tarea (solo si no está ya añadido)
+                if (!$task->getTags()->contains($tag)) {
+                    $task->addTag($tag);
+                }
+            }
+        }
     }
 }

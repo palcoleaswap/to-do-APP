@@ -12,22 +12,27 @@
                 <th>Title</th>
                 <th>Description</th>
                 <th>Status</th>
+                <th>Tags</th>
                 <th>actions</th>
             </tr>
         </thead>
         <tbody>
         {% for task in tasks %}
-            {% for tag in task.tags %}
-                <span class="badge bg-secondary">{{ tag.name }}</span>
-            {% else %}
-                <small>Sin etiquetas</small>
-            {% endfor %}
-
             <tr>
                 <td>{{ task.id }}</td>
                 <td>{{ task.title }}</td>
                 <td>{{ task.description }}</td>
                 <td>{{ task.status }}</td>
+                <td>
+    {% for tag in task.tags %}
+        <span class="badge me-1" style="background-color: {{ tag.color ?? '#6c757d' }}">
+            {{ tag.name }}
+        </span>
+    {% else %}
+        <small class="text-muted">Sin etiquetas</small>
+    {% endfor %}
+</td>
+                
                 <td>
                     <a href="{{ path('app_task_show', {'id': task.id}) }}">show</a>
                     <a href="{{ path('app_task_edit', {'id': task.id}) }}">edit</a>
@@ -42,4 +47,11 @@
     </table>
 
     <a href="{{ path('app_task_new') }}">Create new</a>
+
+    {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('app_admin_dashboard') }}">Volver</a>
+    {% else %}
+        <a href="{{ path('app_user_dashboard') }}">Volver</a>
+    {% endif %}
+
 {% endblock %}

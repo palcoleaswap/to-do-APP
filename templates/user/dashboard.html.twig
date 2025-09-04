@@ -23,6 +23,25 @@
                     </div>
                 </div>
             </div>
+
+    {# Nuevo div para mostrar los grupos del usuario #}
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Mis Grupos</h5>
+                {% if app.user.groupsUser is not empty %}
+                    <ul>
+                    {% for group in app.user.groupsUser %}
+                        <li>{{ group.name }}</li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No estás asignado a ningún grupo.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
             <div class="col-md-6 mb-4">
                 <div class="card">
                     <div class="card-header">

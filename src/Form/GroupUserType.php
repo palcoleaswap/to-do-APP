@@ -18,7 +18,7 @@ class GroupUserType extends AbstractType
             ->add('description')
             ->add('users', EntityType::class, [
                 'class' => User::class,
-                'choice_label' => 'id',
+                'choice_label' => 'email', // Changed from 'id' to 'email'
                 'multiple' => true,
             ])
         ;

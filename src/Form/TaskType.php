@@ -7,6 +7,8 @@ use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use App\Entity\Tag;
 
@@ -20,7 +22,7 @@ class TaskType extends AbstractType
             ->add('status')
             ->add('user', EntityType::class, [
                 'class' => User::class,
-                'choice_label' => 'id',
+                'choice_label' => 'email',
             ])
             ->add('parent', EntityType::class, [
         'class' => Task::class,
@@ -28,12 +30,15 @@ class TaskType extends AbstractType
         'required' => false,
         'placeholder' => 'Ninguna (tarea principal)',
     ])
-          ->add('tags', EntityType::class, [
-        'class' => Tag::class,
-        'choice_label' => 'name',
-        'multiple' => true,
-        'expanded' => true, // puedes poner false si quieres un select en lugar de checkboxes
-    ]);
+          ->add('tagNames', TextType::class, [
+                'label' => 'Tags',
+                'mapped' => false, // No se mapea directamente a la entidad
+                'required' => false,
+                'help' => 'Escribe los tags separados por comas',
+                'attr' => [
+                    'placeholder' => 'trabajo, urgente, personal...'
+                ]
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

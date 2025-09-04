@@ -17,13 +17,32 @@
         <div class="card bg-info text-white">
             <div class="card-body">
                 <h5 class="card-title">Dashboard Admin</h5>
-                <p class="card-text">Ver como admin</p>
+             
                 <ul>
                 <li> <a href="{{ path('app_task_new') }}" class="btn btn-light">Crear Tarea</a> </li>
                 <li> <a href="{{ path('app_task_index') }}" class="btn btn-light">Ver Todas las Tareas</a> </li>
                 <li> <a href="{{ path('app_group_user_index') }}" class="btn btn-light">Asignar Grupo</a> </li>
 
                 <ul>
+            </div>
+        </div>
+    </div>
+
+
+    {# Nuevo div para mostrar los grupos del usuario #}
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Mis Grupos</h5>
+                {% if app.user.groupsUser is not empty %}
+                    <ul>
+                    {% for group in app.user.groupsUser %}
+                        <li>{{ group.name }}</li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No estás asignado a ningún grupo.</p>
+                {% endif %}
             </div>
         </div>
     </div>
