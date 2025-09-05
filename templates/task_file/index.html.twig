@@ -1,0 +1,208 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Files for Task: {{ task.title }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Files for Task: <span class="text-primary">{{ task.title }}</span></h1>
+        <a href="{{ path('app_task_index') }}" class="btn btn-secondary">← Back to Tasks</a>
+    </div>
+
+    <!-- Mostrar mensajes flash -->
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Upload Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-upload"></i> Upload New File
+            </h5>
+        </div>
+        <div class="card-body">
+            {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+                <div class="row">
+                    <div class="col-md-8">
+                        {{ form_row(form.file, {
+                            'label': 'Select file to upload',
+                            'attr': {'class': 'form-control', 'accept': '.pdf,.doc,.docx,.txt,.jpg,.png,.gif,.xls,.xlsx'}
+                        }) }}
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-cloud-upload-alt"></i> Upload File
+                        </button>
+                    </div>
+                </div>
+            {{ form_end(form) }}
+            
+            <div class="mt-3">
+                <small class="text-muted">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Allowed files:</strong> PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF, TXT
+                    <br>
+                    <strong>Maximum size:</strong> 10MB per file
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Files List -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-folder-open"></i> Uploaded Files
+            </h5>
+            <span class="badge bg-primary">{{ files|length }} file(s)</span>
+        </div>
+        <div class="card-body">
+            {% if files|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th><i class="fas fa-file"></i> File Name</th>
+                                <th><i class="fas fa-tag"></i> Type</th>
+                                <th><i class="fas fa-weight-hanging"></i> Size</th>
+                                <th><i class="fas fa-calendar"></i> Uploaded</th>
+                                <th><i class="fas fa-cogs"></i> Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for file in files %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% set extension = file.originalName|split('.')|last|lower %}
+                                        {% if extension == 'pdf' %}
+                                            <i class="fas fa-file-pdf text-danger me-2"></i>
+                                        {% elseif extension in ['doc', 'docx'] %}
+                                            <i class="fas fa-file-word text-primary me-2"></i>
+                                        {% elseif extension in ['xls', 'xlsx'] %}
+                                            <i class="fas fa-file-excel text-success me-2"></i>
+                                        {% elseif extension in ['jpg', 'jpeg', 'png', 'gif'] %}
+                                            <i class="fas fa-file-image text-info me-2"></i>
+                                        {% else %}
+                                            <i class="fas fa-file text-secondary me-2"></i>
+                                        {% endif %}
+                                        <strong>{{ file.originalName }}</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ file.mimeType }}</span>
+                                </td>
+                                <td>{{ file.fileSizeFormatted }}</td>
+                                
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ path('app_task_file_download', { taskId: task.id, id: file.id }) }}" 
+                                           class="btn btn-sm btn-outline-primary" 
+                                           title="Download file">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-danger" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteModal{{ file.id }}"
+                                                title="Delete file">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Modal de confirmación para eliminar -->
+                                    <div class="modal fade" id="deleteModal{{ file.id }}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">
+                                                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                                                        Confirm Delete
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Are you sure you want to delete this file?</p>
+                                                    <p><strong>{{ file.originalName }}</strong></p>
+                                                    <p class="text-danger"><small>This action cannot be undone.</small></p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <form method="post" 
+                                                          action="{{ path('app_task_file_delete', { taskId: task.id, id: file.id }) }}" 
+                                                          style="display: inline-block;">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ file.id) }}">
+                                                        <button type="submit" class="btn btn-danger">
+                                                            <i class="fas fa-trash"></i> Delete File
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">No files uploaded yet</h5>
+                    <p class="text-muted">This task doesn't have any files attached.</p>
+                    <p class="text-muted">Use the form above to upload your first file.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Información adicional de la tarea -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h6 class="mb-0"><i class="fas fa-info-circle"></i> Task Information</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Title:</strong> {{ task.title }}</p>
+                    <p><strong>Status:</strong> 
+                        <span class="badge bg-{{ task.status == 'completed' ? 'success' : (task.status == 'in_progress' ? 'warning' : 'secondary') }}">
+                            {{ task.status|title }}
+                        </span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    {% if task.description %}
+                        <p><strong>Description:</strong></p>
+                        <p class="text-muted">{{ task.description|nl2br }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .table td {
+            vertical-align: middle;
+        }
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border: 1px solid rgba(0, 0, 0, 0.125);
+        }
+        .btn-group .btn {
+            margin-right: 0;
+        }
+    </style>
+{% endblock %}

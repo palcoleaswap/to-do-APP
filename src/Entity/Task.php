@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\TaskRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -43,10 +44,17 @@ class Task
     #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'tasks')]
     private Collection $tags;
 
+    /**
+     * @var Collection<int, TaskFile>
+     */
+    #[ORM\OneToMany(targetEntity: TaskFile::class, mappedBy: 'task', orphanRemoval: true)]
+    private Collection $taskFiles;
+
     public function __construct()
     {
         $this->subtasks = new ArrayCollection();
         $this->tags = new ArrayCollection();
+        $this->taskFiles = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -164,6 +172,36 @@ class Task
     public function removeTag(Tag $tag): static
     {
         $this->tags->removeElement($tag);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TaskFile>
+     */
+    public function getTaskFiles(): Collection
+    {
+        return $this->taskFiles;
+    }
+
+    public function addTaskFile(TaskFile $taskFile): static
+    {
+        if (!$this->taskFiles->contains($taskFile)) {
+            $this->taskFiles->add($taskFile);
+            $taskFile->setTask($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTaskFile(TaskFile $taskFile): static
+    {
+        if ($this->taskFiles->removeElement($taskFile)) {
+            // set the owning side to null (unless already changed)
+            if ($taskFile->getTask() === $this) {
+                $taskFile->setTask(null);
+            }
+        }
 
         return $this;
     }

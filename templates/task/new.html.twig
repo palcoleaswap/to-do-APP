@@ -13,21 +13,28 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        // Función global para inicializar subtareas
+        function initializeSubtasks() {
             const wrapper = document.getElementById('subtasks-wrapper');
             const addButton = document.getElementById('add-subtask');
+            
+            if (!wrapper || !addButton) {
+                console.log('Elementos de subtareas no encontrados, saltando inicialización');
+                return;
+            }
+
+            // Limpiar event listeners existentes
+            const newAddButton = addButton.cloneNode(true);
+            addButton.parentNode.replaceChild(newAddButton, addButton);
+
             let index = wrapper.querySelectorAll('.subtask-form').length;
+            console.log('Inicializando subtareas, índice inicial:', index);
 
-            if (!wrapper) {
-                console.error('No se encontró el contenedor #subtasks-wrapper');
-                return;
-            }
-            if (!addButton) {
-                console.error('No se encontró el botón #add-subtask');
-                return;
-            }
-
-            addButton.addEventListener('click', () => {
+            // Función para añadir subtarea
+            function addSubtask(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
                 console.log('Click detectado en Añadir subtarea');
                 const prototype = wrapper.dataset.prototype;
 
@@ -38,14 +45,49 @@
 
                 const newForm = prototype.replace(/__name__/g, index);
                 const div = document.createElement('div');
-                div.classList.add('subtask-form');
-                div.innerHTML = newForm;
+                div.classList.add('subtask-form', 'mb-3', 'border', 'p-3');
+                div.innerHTML = newForm + '<button type="button" class="btn btn-sm btn-danger remove-subtask">Eliminar</button>';
                 wrapper.appendChild(div);
                 index++;
 
                 console.log('Subtarea añadida, nuevo índice:', index);
-            });
-        });
+                attachRemoveListeners();
+            }
+
+            // Función para eliminar subtarea
+            function attachRemoveListeners() {
+                document.querySelectorAll('.remove-subtask').forEach(button => {
+                    button.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.closest('.subtask-form').remove();
+                    };
+                });
+            }
+
+            // Attach event listeners
+            newAddButton.addEventListener('click', addSubtask);
+            attachRemoveListeners();
+
+            console.log('JavaScript de subtareas inicializado correctamente');
+        }
+
+        // Ejecutar en DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initializeSubtasks);
+        
+        // Ejecutar también cuando la página se muestre (para navegación con caché)
+        window.addEventListener('pageshow', initializeSubtasks);
+        
+        // Si usas Turbo (común en Symfony)
+        document.addEventListener('turbo:load', initializeSubtasks);
+        document.addEventListener('turbo:render', initializeSubtasks);
+        
+        // Ejecutar inmediatamente si el DOM ya está listo
+        if (document.readyState === 'loading') {
+            // El DOM aún se está cargando
+        } else {
+            // El DOM ya está listo
+            initializeSubtasks();
+        }
     </script>
 {% endblock %}
-

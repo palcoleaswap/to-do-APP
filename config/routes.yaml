@@ -4,3 +4,18 @@ controllers:
         namespace: App\Controller
     type: attribute
 
+# config/routes.yaml
+task_files:
+    path: /task/{taskId}/files
+    controller: App\Controller\TaskFileController::index
+    methods: [GET, POST]
+
+task_file_download:
+    path: /task/{taskId}/files/download/{id}
+    controller: App\Controller\TaskFileController::download
+    methods: [GET]
+
+task_file_delete:
+    path: /task/{taskId}/files/delete/{id}  
+    controller: App\Controller\TaskFileController::delete
+    methods: [POST]

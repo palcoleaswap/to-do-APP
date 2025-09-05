@@ -10,14 +10,16 @@
     
     <div id="subtasks-wrapper" data-prototype="{{ form_widget(form.subtasks.vars.prototype)|e('html_attr') }}">
         {% for subtaskForm in form.subtasks %}
-            <div class="subtask-form">
+            <div class="subtask-form mb-3 border p-3">
                 {{ form_widget(subtaskForm) }}
+                <button type="button" class="btn btn-sm btn-danger remove-subtask">Eliminar</button>
             </div>
         {% endfor %}
     </div>
 
-    <button type="button" id="add-subtask">+ Añadir subtarea</button>
+    <!-- Botón FUERA del formulario o con preventDefault -->
+    <button type="button" class="btn btn-secondary mb-3" id="add-subtask">+ Añadir subtarea</button>
 
-    <br><br>
-    <button class="btn">{{ button_label|default('Guardar') }}</button>
+    <br>
+    <button type="submit" class="btn btn-primary">{{ button_label|default('Guardar') }}</button>
 {{ form_end(form) }}

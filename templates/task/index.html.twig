@@ -13,7 +13,7 @@
             <th>Description</th>
             <th>Status</th>
             <th>Tags</th>
-            <th>actions</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -35,25 +35,29 @@
                 <small class="text-muted">Sin etiquetas</small>
                 {% endfor %}
             </td>
-
+            
             <td>
-                <a href="{{ path('app_task_show', { id: task.id }) }}">show</a>
-                <a href="{{ path('app_task_edit', { id: task.id }) }}">edit</a>
-                <a href="{{ path('app_task_delete', { id: task.id }) }}">delete</a>
+                <div class="btn-group" role="group">
+                    <a href="{{ path('app_task_show', { id: task.id }) }}" class="btn btn-sm btn-info">Show</a>
+                    <a href="{{ path('app_task_edit', { id: task.id }) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="{{ path('app_task_files', { taskId: task.id }) }}" class="btn btn-sm btn-success">Files</a>
+                    <a href="{{ path('app_task_delete', { id: task.id }) }}" class="btn btn-sm btn-danger">Delete</a>
+                </div>
             </td>
         </tr>
         {% else %}
         <tr>
-            <td colspan="5">no records found</td>
+            <td colspan="6">no records found</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
-<a href="{{ path('app_task_new') }}">Create new</a>
+<a href="{{ path('app_task_new') }}" class="btn btn-primary">Create new</a>
 
 {% if is_granted('ROLE_ADMIN') %}
-<a href="{{ path('app_admin_dashboard') }}">Volver</a>
+<a href="{{ path('app_admin_dashboard') }}" class="btn btn-secondary">Volver</a>
 {% else %}
-<a href="{{ path('app_user_dashboard') }}">Volver</a>
-{% endif %} {% endblock %}
+<a href="{{ path('app_user_dashboard') }}" class="btn btn-secondary">Volver</a>
+{% endif %}
+{% endblock %}
